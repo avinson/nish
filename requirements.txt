@@ -1,0 +1,7 @@
+bs4
+chardet
+cobe==2.1.2
+pyopenssl
+python-magic
+requests==2.10.*
+Twisted
