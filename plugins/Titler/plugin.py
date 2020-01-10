@@ -132,7 +132,9 @@ class Titler(callbacks.Plugin):
             'blip.tv': '_bliptitle',
             'vine.co': '_vinetitle',
             'reddit.com': '_reddit',
-            'www.reddit.com': '_reddit'
+            'www.reddit.com': '_reddit',
+            'www.cbc.ca': '_cbctitle',
+            'cbc.ca': '_cbctitle'
             }
 
     def die(self):
@@ -1128,6 +1130,27 @@ class Titler(callbacks.Plugin):
             return o
         except Exception, e:
             self.log.error("_yttitle: error processing JSON: {0}".format(e))
+            return None
+
+    def _cbctitle(self, url):
+        """Fetch title for cbc links from API."""
+
+        # get article id from url
+        query = urlparse(url)
+        m = re.search('(?<=1.)[0-9]+', query.path)
+        articleid = "1.%s" % m.group(0)
+
+        # try loading cbc api
+        apiurl = 'https://www.cbc.ca/json/cmlink/%s' % articleid
+        lookup = self._openurl(apiurl)
+        if not lookup:
+            self.log.error("_cbctitle: could not fetch: {0}".format(url))
+            return None
+        try:
+            data = json.loads(lookup)
+            return "CBC: %s" % data['headline']
+        except Exception, e:
+            self.log.error("_cbctitle: ERROR parsing JSON: {0}".format(e))
             return None
 
 Class = Titler
