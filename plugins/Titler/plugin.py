@@ -1138,6 +1138,10 @@ class Titler(callbacks.Plugin):
         # get article id from url
         query = urlparse(url)
         m = re.search('(?<=1.)[0-9]+', query.path)
+        if not m:
+            self.log.error("_cbctitle: could not find article id")
+            return None
+
         articleid = "1.%s" % m.group(0)
 
         # try loading cbc api
