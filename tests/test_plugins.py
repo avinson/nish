@@ -29,6 +29,16 @@ class CobePluginTest(supytest.ChannelPluginTestCase):
     def test_karma(self):
         self.assertNotError("karma testthing")
 
+    def test_seen_uses_safe_reader(self):
+        self.assertEqual(self.irc.getCallback("Seen").db.__class__.__name__, "SafeSeenDB")
+
+    def test_unknown_addressed_prompt_uses_real_brain(self):
+        plugin = self.irc.getCallback("Cobe")
+        plugin._executor.submit(
+            lambda: plugin._brain(self.channel).learn("A zebra tells a bread story")
+        ).result(timeout=5)
+        self.assertResponse("zebra story", "A zebra tells a bread story")
+
     def test_ordinary_message_does_not_reply(self):
         self.assertNoResponse("an ordinary sentence with words", usePrefixChar=False, timeout=0.5)
 
@@ -79,3 +89,15 @@ class CobePluginTest(supytest.ChannelPluginTestCase):
             )
             plugin._executor.submit(lambda: None).result(timeout=5)
             self.assertEqual(brain.learn.call_count, 1)
+
+    def test_two_percent_random_reply_boundaries(self):
+        plugin = self.irc.getCallback("Cobe")
+        conf.supybot.plugins.Cobe.probability.setValue(200)
+        for roll, expected in ((0, True), (199, True), (200, False), (9999, False)):
+            msg = ircmsgs.privmsg(self.channel, "an ordinary sentence", prefix="alice!a@host")
+            with (
+                mock.patch("Cobe.plugin.random.randrange", return_value=roll),
+                mock.patch.object(plugin, "_submit") as submit,
+            ):
+                plugin.doPrivmsg(self.irc, msg)
+                self.assertEqual(submit.call_args.kwargs["reply"], expected)

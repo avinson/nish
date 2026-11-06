@@ -52,7 +52,7 @@ conf.registerGlobalValue(
 conf.registerChannelValue(
     Cobe,
     "probability",
-    registry.NonNegativeInteger(0, "Automatic reply chance out of 10000; 2 means 0.02 percent."),
+    registry.NonNegativeInteger(200, "Automatic reply chance out of 10000; 200 means 2 percent."),
 )
 conf.registerChannelValue(
     Cobe,

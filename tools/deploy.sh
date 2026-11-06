@@ -8,7 +8,7 @@ if test -n "$(git status --porcelain --untracked-files=no)"; then
 fi
 /home/avinson/.local/bin/uv sync --frozen
 /home/avinson/.local/bin/uv run --frozen pytest -q
-/home/avinson/.local/bin/uv run --frozen ruff check plugins/Cobe plugins/Infobot tools tests
+/home/avinson/.local/bin/uv run --frozen ruff check plugins/Cobe plugins/Infobot plugins/Seen tools tests
 .venv/bin/python tools/maintenance.py snapshot --apply
 sudo systemctl restart nishbot
 sleep 3

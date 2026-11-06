@@ -42,6 +42,7 @@ import supybot.ircmsgs as ircmsgs
 import supybot.plugins as plugins
 import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
+from supybot.dynamicScope import dynamic
 
 from .storage import InfobotDB
 

@@ -20,15 +20,28 @@ recover() {
   fi
 }
 trap recover ERR
+wrapper=$(ps -p "$oldpid" -o ppid= | tr -d ' ')
+if test "$(cat /proc/$wrapper/comm)" = bash && test "$(readlink /proc/$wrapper/cwd)" = "$root"; then
+  kill -STOP "$wrapper"
+else
+  wrapper=
+fi
 kill -TERM "$oldpid"
 for _ in $(seq 1 60); do
-  if ! kill -0 "$oldpid" 2>/dev/null; then break; fi
+  state=$(awk '/^State:/ {print $2}' "/proc/$oldpid/status" 2>/dev/null || true)
+  if test -z "$state" || test "$state" = Z; then break; fi
   sleep 1
 done
-if kill -0 "$oldpid" 2>/dev/null; then
+if test -n "$state" && test "$state" != Z; then
   echo 'Legacy bot did not stop. Abort before migration.' >&2
   trap - ERR
   exit 1
+fi
+if test -n "$wrapper"; then
+  kill -HUP "$wrapper"
+  kill -CONT "$wrapper"
+  sleep 1
+  if kill -0 "$wrapper" 2>/dev/null; then kill -KILL "$wrapper"; fi
 fi
 tar -C "$root" -cf - data conf nishbot.conf plugins | gzip -1 > "$recovery/pre-upgrade.tar.gz.next"
 mv "$recovery/pre-upgrade.tar.gz.next" "$recovery/pre-upgrade.tar.gz"

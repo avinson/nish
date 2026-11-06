@@ -20,7 +20,7 @@ tasks:
 
   lint:
     desc: Check active plugins and maintenance tools
-    cmds: ['{{.UV}} run --frozen ruff check plugins/Cobe plugins/Infobot tools tests']
+    cmds: ['{{.UV}} run --frozen ruff check plugins/Cobe plugins/Infobot plugins/Seen tools tests']
 
   bot:status:
     desc: Show the remote service and free disk space

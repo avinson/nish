@@ -36,7 +36,7 @@ to reproduce this intentional dependency exception.
 
 Infobot retains its customized passive-learning and question behavior. It
 uses separate SQLite3 databases per channel. Karma and Seen use Limnoria's
-bundled implementations. Disabled legacy plugins and Docker files are not
+bundled behavior. A thin Seen adapter reads legacy Unicode CSV records without splitting their messages at Unicode line separators. Disabled legacy plugins and Docker files are not
 part of this native deployment.
 
 The bot connects to `irc.darwin.network:6697` with certificate verification.
@@ -46,8 +46,7 @@ Credentials stay in the private runtime configuration, outside Git.
 Cobe learns accepted incoming channel messages, not its own output. It
 removes whole nickname tokens and rejects either old reserved marker on
 input. Every Cobe output path removes historical marker prefixes and current
-nicknames. Existing brain history stays intact. `probability=2` means 0.02%,
-not 2%. Automatic replies have a ten-second cooldown. Addressed replies can
+nicknames. Existing brain history stays intact. `probability=200` means a 2% automatic reply chance. Automatic replies have a ten-second cooldown. Addressed replies can
 bypass it. Replies are delayed by two to five seconds when configured.
 
 ## Recovery and retention
