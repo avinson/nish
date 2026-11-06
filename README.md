@@ -46,7 +46,7 @@ Credentials stay in the private runtime configuration, outside Git.
 Cobe learns accepted incoming channel messages, not its own output. It
 removes whole nickname tokens and rejects either old reserved marker on
 input. Every Cobe output path removes historical marker prefixes and current
-nicknames. Existing brain history stays intact. `probability=200` means a 2% automatic reply chance. Automatic replies have a ten-second cooldown. Addressed replies can
+nicknames. Existing brain history stays intact. `probability=100` means a 1% automatic reply chance. Automatic replies have a ten-second cooldown. Addressed replies can
 bypass it. Replies are delayed by two to five seconds when configured.
 
 ## Recovery and retention
