@@ -37,7 +37,10 @@ class CobePluginTest(supytest.ChannelPluginTestCase):
         plugin._executor.submit(
             lambda: plugin._brain(self.channel).learn("A zebra tells a bread story")
         ).result(timeout=5)
-        self.assertResponse("zebra story", "A zebra tells a bread story")
+        fallback = self.irc.getCallback("Misc")
+        with mock.patch.object(fallback, "invalidCommand", wraps=fallback.invalidCommand) as called:
+            self.assertResponse("zebra story", "A zebra tells a bread story")
+            called.assert_not_called()
 
     def test_ordinary_message_does_not_reply(self):
         self.assertNoResponse("an ordinary sentence with words", usePrefixChar=False, timeout=0.5)

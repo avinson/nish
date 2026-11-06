@@ -76,6 +76,7 @@ class Cobe(callbacks.Plugin):
             msg.tag("repliedTo")
         future = self._executor.submit(self._work, irc, msg, channel, text, learn, reply, addressed)
         future.add_done_callback(self._finished)
+        return True
 
     def _finished(self, future):
         with self._lock:
@@ -158,7 +159,9 @@ class Cobe(callbacks.Plugin):
         """Respond after Infobot and recognized commands have had priority."""
         if not msg.repliedTo and self._users(irc, msg.args[0]) is not None:
             text = callbacks.addressed(irc, msg) or msg.args[1]
-            self._submit(irc, msg, msg.args[0], text, reply=True, addressed=True)
+            if self._submit(irc, msg, msg.args[0], text, reply=True, addressed=True):
+                # Limnoria's fallback chain checks its reply proxy, not the message tag.
+                irc.repliedTo = True
 
     def brainsize(self, irc, msg, args, channel):
         """[<channel>]

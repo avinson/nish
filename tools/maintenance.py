@@ -221,13 +221,16 @@ def main():
                     ["systemctl", "is-active", "nishbot"], capture_output=True, text=True
                 )
                 result["service"] = active.stdout.strip()
-                log = root / "logs/messages.log"
-                if log.exists():
-                    with log.open("rb") as stream:
-                        stream.seek(max(0, log.stat().st_size - 1024 * 1024))
-                        result["recent_error_lines"] = sum(
-                            line.startswith((b"ERROR ", b"CRITICAL ")) for line in stream
-                        )
+                pid = subprocess.check_output(
+                    ["systemctl", "show", "nishbot", "-p", "MainPID", "--value"], text=True
+                ).strip()
+                logs = subprocess.run(
+                    ["journalctl", "-u", "nishbot", "_PID=" + pid, "--since", "-1 hour", "--no-pager", "-o", "cat"],
+                    capture_output=True, text=True, check=True,
+                )
+                result["recent_error_lines"] = sum(
+                    line.startswith(("ERROR ", "CRITICAL ")) for line in logs.stdout.splitlines()
+                )
                 result["checked_at"] = time.time()
                 if active.returncode or result.get("recent_error_lines"):
                     result["status"] = "attention"
