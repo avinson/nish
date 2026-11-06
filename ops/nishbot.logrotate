@@ -1,0 +1,12 @@
+/home/avinson/nishbot/logs/messages.log /home/avinson/nishbot/logs/maintenance.log {
+    daily
+    maxsize 25M
+    rotate 10
+    maxage 30
+    compress
+    delaycompress
+    missingok
+    notifempty
+    su avinson avinson
+    create 0600 avinson avinson
+}

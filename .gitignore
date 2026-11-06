@@ -1,3 +1,15 @@
-build.sh
-run.sh
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
 *.pyc
+*.cfg
+*.sqlite*
+*.brain*
+runtime/
+archive/
+conf/
+data/
+logs/
+nishbot.conf
+._*

@@ -31,30 +31,32 @@ import re
 
 from supybot.test import *
 
-Infobot = plugin.loadPluginModule('Infobot')
+Infobot = plugin.loadPluginModule("Infobot")
 confirms = Infobot.plugin.confirms
 dunnos = Infobot.plugin.dunnos
 ibot = conf.supybot.plugins.Infobot
 
+
 class InfobotTestCase(ChannelPluginTestCase):
-    plugins = ('Infobot',)
-    _endRe = re.compile(r'!|, \S+\.|\.')
+    plugins = ("Infobot",)
+    _endRe = re.compile(r"!|, \S+\.|\.")
+
     def testIsSnarf(self):
         learn = ibot.unaddressed.snarfDefinitions()
         answer = ibot.unaddressed.answerQuestions()
         try:
             ibot.unaddressed.snarfDefinitions.setValue(True)
             ibot.unaddressed.answerQuestions.setValue(True)
-            self.assertSnarfNoResponse('foo is at http://bar.com/', 2)
-            self.assertRegexp('infobot stats', '\d modification')
-            self.assertRegexp('infobot status', '\d modification')
-            self.assertSnarfRegexp('foo?', r'foo.*is.*http://bar.com/')
-            self.assertSnarfNoResponse('foo is at http://baz.com/', 2)
-            self.assertSnarfNotRegexp('foo?', 'baz')
-            m = self.getMsg('bar is at http://foo.com/')
-            self.failUnless(self._endRe.sub('', m.args[1]) in confirms)
-            self.assertRegexp('bar?', r'bar.*is.*http://foo.com/')
-            self.assertRegexp('what was bar?', r'http://foo.com/')
+            self.assertSnarfNoResponse("foo is at http://bar.com/", 2)
+            self.assertRegexp("infobot stats", "\d modification")
+            self.assertRegexp("infobot status", "\d modification")
+            self.assertSnarfRegexp("foo?", r"foo.*is.*http://bar.com/")
+            self.assertSnarfNoResponse("foo is at http://baz.com/", 2)
+            self.assertSnarfNotRegexp("foo?", "baz")
+            m = self.getMsg("bar is at http://foo.com/")
+            self.assertTrue(self._endRe.sub("", m.args[1]) in confirms)
+            self.assertRegexp("bar?", r"bar.*is.*http://foo.com/")
+            self.assertRegexp("what was bar?", r"http://foo.com/")
         finally:
             ibot.unaddressed.snarfDefinitions.setValue(learn)
             ibot.unaddressed.answerQuestions.setValue(answer)
@@ -65,17 +67,17 @@ class InfobotTestCase(ChannelPluginTestCase):
         try:
             ibot.unaddressed.snarfDefinitions.setValue(True)
             ibot.unaddressed.answerQuestions.setValue(True)
-            self.assertSnarfNoResponse('foo is at http://bar.com/', 2)
-            self.assertSnarfRegexp('what\'s foo?', r'foo.*is.*http://bar.com/')
-            self.assertSnarfRegexp('wtf\'s foo?', r'foo.*is.*http://bar.com/')
-            self.assertSnarfRegexp('who\'s foo?', r'foo.*is.*http://bar.com/')
-            self.assertSnarfRegexp('where\'s foo?',r'foo.*is.*http://bar.com/')
-            self.assertSnarfNoResponse('i am a tool', 2)
-            self.assertRegexp('%s?' % self.nick, r'is.*tool')
-            self.assertSnarfNoResponse('my bot is a tool', 2)
-            self.assertRegexp('%s\'s bot?' % self.nick, r'is.*tool')
-            self.assertSnarfNoResponse('your name is weird', 2)
-            self.assertRegexp('%s\'s name?' % self.irc.nick, r'is.*weird')
+            self.assertSnarfNoResponse("foo is at http://bar.com/", 2)
+            self.assertSnarfRegexp("what's foo?", r"foo.*is.*http://bar.com/")
+            self.assertSnarfRegexp("wtf's foo?", r"foo.*is.*http://bar.com/")
+            self.assertSnarfRegexp("who's foo?", r"foo.*is.*http://bar.com/")
+            self.assertSnarfRegexp("where's foo?", r"foo.*is.*http://bar.com/")
+            self.assertSnarfNoResponse("i am a tool", 2)
+            self.assertRegexp("%s?" % self.nick, r"is.*tool")
+            self.assertSnarfNoResponse("my bot is a tool", 2)
+            self.assertRegexp("%s's bot?" % self.nick, r"is.*tool")
+            self.assertSnarfNoResponse("your name is weird", 2)
+            self.assertRegexp("%s's name?" % self.irc.nick, r"is.*weird")
         finally:
             ibot.unaddressed.snarfDefinitions.setValue(learn)
             ibot.unaddressed.answerQuestions.setValue(answer)
@@ -86,11 +88,11 @@ class InfobotTestCase(ChannelPluginTestCase):
         try:
             ibot.unaddressed.snarfDefinitions.setValue(True)
             ibot.unaddressed.answerQuestions.setValue(True)
-            self.assertSnarfNoResponse('bars are dirty', 2)
-            self.assertSnarfRegexp('bars?', 'bars.*are.*dirty')
-            self.assertSnarfNoResponse('bars are not dirty', 2)
-            self.assertSnarfNotRegexp('bars?', 'not')
-            self.assertSnarfRegexp('what were bars?', 'dirty')
+            self.assertSnarfNoResponse("bars are dirty", 2)
+            self.assertSnarfRegexp("bars?", "bars.*are.*dirty")
+            self.assertSnarfNoResponse("bars are not dirty", 2)
+            self.assertSnarfNotRegexp("bars?", "not")
+            self.assertSnarfRegexp("what were bars?", "dirty")
         finally:
             ibot.unaddressed.snarfDefinitions.setValue(learn)
             ibot.unaddressed.answerQuestions.setValue(answer)
@@ -101,12 +103,12 @@ class InfobotTestCase(ChannelPluginTestCase):
         try:
             ibot.unaddressed.snarfDefinitions.setValue(True)
             ibot.unaddressed.answerQuestions.setValue(True)
-            self.assertSnarfNoResponse('foo is bar', 2)
-            self.assertSnarfRegexp('foo?', 'foo.*is.*bar')
-            self.assertSnarfNoResponse('when is foo?', 2)
-            self.assertSnarfNoResponse('why is foo?', 2)
-            self.assertSnarfNoResponse('why foo?', 2)
-            self.assertSnarfNoResponse('when is foo?', 2)
+            self.assertSnarfNoResponse("foo is bar", 2)
+            self.assertSnarfRegexp("foo?", "foo.*is.*bar")
+            self.assertSnarfNoResponse("when is foo?", 2)
+            self.assertSnarfNoResponse("why is foo?", 2)
+            self.assertSnarfNoResponse("why foo?", 2)
+            self.assertSnarfNoResponse("when is foo?", 2)
         finally:
             ibot.unaddressed.snarfDefinitions.setValue(learn)
             ibot.unaddressed.answerQuestions.setValue(answer)
@@ -115,10 +117,10 @@ class InfobotTestCase(ChannelPluginTestCase):
         answer = ibot.unaddressed.answerQuestions()
         try:
             ibot.unaddressed.answerQuestions.setValue(True)
-            self.assertSnarfNoResponse('foo is bar')
-            self.assertSnarfRegexp('foo?', 'foo.*is.*bar')
+            self.assertSnarfNoResponse("foo is bar")
+            self.assertSnarfRegexp("foo?", "foo.*is.*bar")
             ibot.unaddressed.answerQuestions.setValue(False)
-            self.assertSnarfNoResponse('foo?', 2)
+            self.assertSnarfNoResponse("foo?", 2)
         finally:
             ibot.unaddressed.answerQuestions.setValue(answer)
 
@@ -128,11 +130,11 @@ class InfobotTestCase(ChannelPluginTestCase):
         try:
             ibot.unaddressed.answerQuestions.setValue(True)
             ibot.unaddressed.snarfDefinitions.setValue(True)
-            self.assertSnarfNoResponse('forums are good')
-            self.assertSnarfRegexp('forums?', r'forums.*are.*good')
-            self.assertSnarfNoResponse('no, forums are evil')
-            self.assertNotError('no, forums are evil')
-            self.assertSnarfRegexp('forums?', r'forums.*.are.*evil')
+            self.assertSnarfNoResponse("forums are good")
+            self.assertSnarfRegexp("forums?", r"forums.*are.*good")
+            self.assertSnarfNoResponse("no, forums are evil")
+            self.assertNotError("no, forums are evil")
+            self.assertSnarfRegexp("forums?", r"forums.*.are.*evil")
         finally:
             ibot.unaddressed.answerQuestions.setValue(answer)
             ibot.unaddressed.snarfDefinitions.setValue(learn)
@@ -143,45 +145,45 @@ class InfobotTestCase(ChannelPluginTestCase):
         try:
             ibot.unaddressed.answerQuestions.setValue(True)
             ibot.unaddressed.snarfDefinitions.setValue(True)
-            self.assertSnarfNoResponse('foo is <reply> foo is bar')
-            self.assertSnarfRegexp('foo?', 'foo is bar')
-            self.assertSnarfNoResponse('bars are <reply> bars are good')
-            self.assertSnarfRegexp('bars?', 'bars are good')
-            self.assertSnarfNoResponse('bees are <reply> honey is good')
-            self.assertSnarfRegexp('bees?', 'honey is good')
-            self.assertSnarfNoResponse('food is <reply> tacos are good')
-            self.assertSnarfRegexp('food?', 'tacos are good')
+            self.assertSnarfNoResponse("foo is <reply> foo is bar")
+            self.assertSnarfRegexp("foo?", "foo is bar")
+            self.assertSnarfNoResponse("bars are <reply> bars are good")
+            self.assertSnarfRegexp("bars?", "bars are good")
+            self.assertSnarfNoResponse("bees are <reply> honey is good")
+            self.assertSnarfRegexp("bees?", "honey is good")
+            self.assertSnarfNoResponse("food is <reply> tacos are good")
+            self.assertSnarfRegexp("food?", "tacos are good")
         finally:
             ibot.unaddressed.answerQuestions.setValue(answer)
             ibot.unaddressed.snarfDefinitions.setValue(learn)
 
     # I think this is covered by Karma's noReply()
-    #def testNoKarmaDunno(self):
+    # def testNoKarmaDunno(self):
     #    self.assertNoResponse('foo++')
 
     def testPredefinedFactoids(self):
-        self.assertSnarfNoResponse('what?', 3)
-        self.assertRegexp('roses?', 'roses are red')
+        self.assertSnarfNoResponse("what?", 3)
+        self.assertRegexp("roses?", "roses are red")
 
     def testListFacts(self):
-        self.assertRegexp('listfacts rose', 'roses')
+        self.assertRegexp("listfacts rose", "roses")
 
     def testAddressedQuestions(self):
-        self.assertSnarfNoResponse('hi is <reply>Hello, $who.')
-        self.assertSnarfNoResponse('hi')
-        self.assertRegexp('hi', 'Hello')
+        self.assertSnarfNoResponse("hi is <reply>Hello, $who.")
+        self.assertSnarfNoResponse("hi")
+        self.assertRegexp("hi", "Hello")
 
     def testChange(self):
-        self.assertSnarfNoResponse('hi is <reply>Hello, $who.')
-        self.assertNotRegexp('hi =~ s/Hello/Hola/', 'anything matching')
-        self.assertSnarfNoResponse('hi =~ s/Hola/Foo/')
+        self.assertSnarfNoResponse("hi is <reply>Hello, $who.")
+        self.assertNotRegexp("hi =~ s/Hello/Hola/", "anything matching")
+        self.assertSnarfNoResponse("hi =~ s/Hola/Foo/")
 
     def testPunctuation(self):
-        self.assertSnarfNoResponse('test123 is <reply>Something with trailing '
-                                   'punctuation.')
-        self.assertRegexp('test123', r'punctuation\.')
-        self.assertSnarfNoResponse('foo. is <reply>Key with punctuation')
-        self.assertRegexp('foo.', r'Key with')
-        self.assertNotRegexp('forget foo.', r'I didn\'t have anything')
+        self.assertSnarfNoResponse("test123 is <reply>Something with trailing punctuation.")
+        self.assertRegexp("test123", r"punctuation\.")
+        self.assertSnarfNoResponse("foo. is <reply>Key with punctuation")
+        self.assertRegexp("foo.", r"Key with")
+        self.assertNotRegexp("forget foo.", r"I didn\'t have anything")
+
 
 # vim:set shiftwidth=4 softtabstop=4 expandtab textwidth=79:

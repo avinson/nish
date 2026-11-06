@@ -1,0 +1,25 @@
+[Unit]
+Description=Nishbot IRC bot
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=avinson
+Group=avinson
+WorkingDirectory=/home/avinson/nishbot
+ExecStart=/home/avinson/git/avinson/nish/.venv/bin/supybot /home/avinson/nishbot/nishbot.conf
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=60
+UMask=0077
+Environment=PYTHONUNBUFFERED=1
+Environment=TZ=America/Los_Angeles
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
