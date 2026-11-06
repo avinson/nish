@@ -78,7 +78,7 @@ class Cobe(callbacks.Plugin):
         
     def _strip_nick(self, irc, msg, text):
         for user in irc.state.channels[msg.args[0]].users:
-            if len(user) <= 4: # Do not replace short nicks, as they might very
+            if len(user) <= 3: # Do not replace short nicks, as they might very
                 # well be part of a word
                 continue
             text = text.replace(user, self.magicnick)
@@ -232,9 +232,9 @@ class Cobe(callbacks.Plugin):
             
             probability = self.registryValue('probability', channel)
 
-        #if self.registryValue('stripNicks'):
-        #    removenicks = '|'.join(item + '\W.*?\s' for item in irc.state.channels[channel].users)
-        #    text = re.sub(r'' + removenicks + '', 'MAGIC_NICK', text)
+        if self.registryValue('stripNicks'):
+            removenicks = '|'.join(item + '\W.*?\s' for item in irc.state.channels[channel].users)
+            text = re.sub(r'' + removenicks + '', 'MAGIC_NICK', text)
         
         self._learn(irc, msg, channel, text, probability) # Now we can pass this to our learn function!
             
