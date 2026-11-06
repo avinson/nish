@@ -1,0 +1,83 @@
+version: '3'
+
+vars:
+  HOST: '{{.HOST | default "avinson@drebin"}}'
+  REMOTE_REPO: /home/avinson/git/avinson/nish
+  UV: '{{.UV | default "uv"}}'
+
+tasks:
+  default:
+    desc: List common operations
+    cmds: ['task --list']
+
+  deps:sync:
+    desc: Install the locked development environment
+    cmds: ['{{.UV}} sync --frozen']
+
+  test:
+    desc: Run regression and IRC integration tests
+    cmds: ['{{.UV}} run --frozen pytest -q']
+
+  lint:
+    desc: Check active plugins and maintenance tools
+    cmds: ['{{.UV}} run --frozen ruff check plugins/Cobe plugins/Infobot plugins/Seen tools tests']
+
+  bot:status:
+    desc: Show the remote service and free disk space
+    cmds:
+      - bash tools/remote.sh {{.HOST}} 'systemctl status nishbot --no-pager; df -h /'
+
+  bot:logs:
+    desc: Show recent service logs without raw channel history
+    cmds:
+      - bash tools/remote.sh {{.HOST}} 'journalctl -u nishbot -n 60 --no-pager'
+
+  bot:restart:
+    desc: Restart the remote bot through systemd
+    cmds:
+      - bash tools/remote.sh {{.HOST}} 'sudo systemctl restart nishbot'
+
+  bot:deploy:
+    desc: Test and deploy the current clean remote Git revision
+    cmds:
+      - bash tools/remote.sh {{.HOST}} 'bash {{.REMOTE_REPO}}/tools/deploy.sh'
+
+  bot:rollback:
+    desc: Stop the new bot and restore the recorded legacy state
+    cmds:
+      - bash tools/remote.sh {{.HOST}} 'bash {{.REMOTE_REPO}}/tools/rollback.sh'
+
+  backup:create:
+    desc: Replace the remote recovery snapshot after integrity checks
+    cmds:
+      - bash tools/remote.sh {{.HOST}} 'cd {{.REMOTE_REPO}} && .venv/bin/python tools/maintenance.py snapshot --apply'
+
+  backup:sync:
+    desc: Pull and verify the recovery snapshot and closed history onto this Mac
+    cmds:
+      - '{{.UV}} run --frozen python tools/archive_sync.py'
+
+  cleanup:plan:
+    desc: Preview cleanup; keep files unchanged
+    cmds:
+      - bash tools/remote.sh {{.HOST}} 'cd {{.REMOTE_REPO}} && .venv/bin/python tools/maintenance.py cleanup'
+
+  cleanup:apply:
+    desc: Delete only old backups and history with verified archive receipts
+    cmds:
+      - bash tools/remote.sh {{.HOST}} 'cd {{.REMOTE_REPO}} && .venv/bin/python tools/maintenance.py cleanup --apply'
+
+  disk:status:
+    desc: Check the 2 GiB free-space floor and show major bot directories
+    cmds:
+      - bash tools/remote.sh {{.HOST}} 'cd {{.REMOTE_REPO}} && .venv/bin/python tools/maintenance.py disk; du -sh /home/avinson/nishbot/{data,logs,backup} /home/avinson/nishbot-recovery'
+
+  history:export:
+    desc: Export the archived channel history into a deduplicated local training corpus
+    cmds:
+      - '{{.UV}} run --frozen python tools/corpus.py export'
+
+  history:evaluate:
+    desc: Compare a separate retrained Markovify model without changing the live brain
+    cmds:
+      - '{{.UV}} run --frozen python tools/corpus.py evaluate'

@@ -27,10 +27,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 ###
 
-from supybot.test import *
+from supybot.test import PluginTestCase
+
 
 class CobeTestCase(PluginTestCase):
-    plugins = ('Cobe',)
+    plugins = ("Cobe",)
 
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:

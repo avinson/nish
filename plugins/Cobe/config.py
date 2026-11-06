@@ -27,38 +27,48 @@
 # POSSIBILITY OF SUCH DAMAGE.
 ###
 
-import supybot.conf as conf
-import supybot.registry as registry
-try:
-    from supybot.i18n import PluginInternationalization
-    _ = PluginInternationalization('Cobe')
-except:
-    # Placeholder that allows to run the plugin on a bot
-    # without the i18n module
-    _ = lambda x:x
+"""Cobe learning and reply settings."""
+
+from supybot import conf, registry
+
 
 def configure(advanced):
-    # This will be called by supybot to configure this module.  advanced is
-    # a bool that specifies whether the user identified themself as an advanced
-    # user or not.  You should effect your configuration by manipulating the
-    # registry as appropriate.
-    from supybot.questions import expect, anything, something, yn
-    conf.registerPlugin('Cobe', True)
+    """Enable the Cobe plugin through the configuration wizard."""
+    conf.registerPlugin("Cobe", True)
 
 
-Cobe = conf.registerPlugin('Cobe')
-# This is where your configuration variables (if any) should go.  For example:
-# conf.registerGlobalValue(Cobe, 'someConfigVariableName',
-#     registry.Boolean(False, _("""Help for someConfigVariableName.""")))
-
-conf.registerGlobalValue(Cobe, 'ignoreRegex', registry.String('^[.@!$%]', _("""Regex to ignore when learning text. Perfect for ignoring commands!.""")))
-conf.registerGlobalValue(Cobe, 'stripUrls', registry.Boolean(True, _("""Keep the bot from learning URLs?""")))
-conf.registerGlobalValue(Cobe, 'stripNicks', registry.Boolean(True, _("""Strip all nicks, including the bots, when learning? This replaces a nick with the keyword MAGIC_NICK to use for random highlighting.""")))
-conf.registerChannelValue(Cobe, 'probability', registry.NonNegativeInteger(0, _("""Determines the percent of messages the bot will answer.""")))
-conf.registerChannelValue(Cobe, 'probabilityWhenAddressed', registry.NonNegativeInteger(10000, _("""Determines the percent of messages adressed to the bot the bot will answer, to the 0.01%. The maximum is 10000/10000""")))
-conf.registerChannelValue(Cobe, 'waitTimeBetweenSpeaking', registry.NonNegativeInteger(10, _("""Seconds to wait in a channel before speaking again.""")))
-conf.registerChannelValue(Cobe, 'ignoreWaitTimeIfAddressed', registry.Boolean(True, _("""If directly addressed, should we ignore the wait time?""")))
-conf.registerChannelValue(Cobe, 'responseDelay', registry.Boolean(False, _("""Delay responding for 2 to 4 seconds in order to seem more human?""")))
-
-
-# vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
+Cobe = conf.registerPlugin("Cobe")
+conf.registerGlobalValue(
+    Cobe, "ignoreRegex", registry.String("^[.@!$%]", "Ignore matching input, including commands.")
+)
+conf.registerGlobalValue(
+    Cobe, "stripUrls", registry.Boolean(True, "Remove HTTP and HTTPS URLs before learning.")
+)
+conf.registerGlobalValue(
+    Cobe,
+    "stripNicks",
+    registry.Boolean(True, "Remove whole nicknames before learning. Do not insert a placeholder."),
+)
+conf.registerChannelValue(
+    Cobe,
+    "probability",
+    registry.NonNegativeInteger(100, "Automatic reply chance out of 10000; 100 means 1 percent."),
+)
+conf.registerChannelValue(
+    Cobe,
+    "probabilityWhenAddressed",
+    registry.NonNegativeInteger(10000, "Reply chance out of 10000 when the bot is mentioned."),
+)
+conf.registerChannelValue(
+    Cobe,
+    "waitTimeBetweenSpeaking",
+    registry.NonNegativeInteger(10, "Minimum seconds between automatic replies."),
+)
+conf.registerChannelValue(
+    Cobe,
+    "ignoreWaitTimeIfAddressed",
+    registry.Boolean(True, "Bypass the automatic reply cooldown when addressed."),
+)
+conf.registerChannelValue(
+    Cobe, "responseDelay", registry.Boolean(False, "Delay replies by 2 to 5 seconds.")
+)

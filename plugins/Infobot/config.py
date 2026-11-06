@@ -30,36 +30,68 @@
 import supybot.conf as conf
 import supybot.registry as registry
 
+
 def configure(advanced):
     # This will be called by supybot to configure this module.  advanced is
     # a bool that specifies whether the user identified himself as an advanced
     # user or not.  You should effect your configuration by manipulating the
     # registry as appropriate.
     from supybot.questions import expect, anything, something, yn
-    conf.registerPlugin('Infobot', True)
+
+    conf.registerPlugin("Infobot", True)
 
 
-Infobot = conf.registerPlugin('Infobot')
-conf.registerChannelValue(Infobot, 'personality',
-    registry.Boolean(True, """Determines whether the bot will respond with
-    personable (Infobot-like) responses rather than its standard messages."""))
-conf.registerChannelValue(Infobot, 'boringDunno',
-    registry.String('Dunno.', """Determines what boring dunno should be given
-    if supybot.plugins.Infobot.personality is False."""))
+Infobot = conf.registerPlugin("Infobot")
+conf.registerChannelValue(
+    Infobot,
+    "personality",
+    registry.Boolean(
+        True,
+        """Determines whether the bot will respond with
+    personable (Infobot-like) responses rather than its standard messages.""",
+    ),
+)
+conf.registerChannelValue(
+    Infobot,
+    "boringDunno",
+    registry.String(
+        "Dunno.",
+        """Determines what boring dunno should be given
+    if supybot.plugins.Infobot.personality is False.""",
+    ),
+)
 
-conf.registerGroup(Infobot, 'unaddressed')
-conf.registerChannelValue(Infobot.unaddressed, 'snarfDefinitions',
-    registry.Boolean(True, """Determines whether the bot will snarf definitions
+conf.registerGroup(Infobot, "unaddressed")
+conf.registerChannelValue(
+    Infobot.unaddressed,
+    "snarfDefinitions",
+    registry.Boolean(
+        True,
+        """Determines whether the bot will snarf definitions
     given in the channel that weren't directly addressed to it.  Of course, no
-    confirmation will be given if the bot isn't directly addressed."""))
-conf.registerChannelValue(Infobot.unaddressed, 'answerQuestions',
-    registry.Boolean(True, """Determines whether the bot will answer questions
+    confirmation will be given if the bot isn't directly addressed.""",
+    ),
+)
+conf.registerChannelValue(
+    Infobot.unaddressed,
+    "answerQuestions",
+    registry.Boolean(
+        True,
+        """Determines whether the bot will answer questions
     that weren't directly addressed to it.  Of course, if it doesn't have an
-    answer, it will remain silent."""))
-conf.registerChannelValue(Infobot.unaddressed, 'replyExistingFactoid',
-    registry.Boolean(False, """Determines whether the bot will announce that a
+    answer, it will remain silent.""",
+    ),
+)
+conf.registerChannelValue(
+    Infobot.unaddressed,
+    "replyExistingFactoid",
+    registry.Boolean(
+        False,
+        """Determines whether the bot will announce that a
     factoid already exists when it sees a definition for a pre-existing
-    factoid."""))
+    factoid.""",
+    ),
+)
 
 
 # vim:set shiftwidth=4 softtabstop=4 expandtab textwidth=79:

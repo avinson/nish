@@ -1,0 +1,6 @@
+SHELL=/bin/sh
+PATH=/usr/bin:/bin
+17 2 * * * avinson cd /home/avinson/git/avinson/nish && .venv/bin/python tools/maintenance.py cleanup --apply >> /home/avinson/nishbot/logs/maintenance.log 2>&1
+37 2 * * * avinson cd /home/avinson/git/avinson/nish && .venv/bin/python tools/maintenance.py snapshot --apply >> /home/avinson/nishbot/logs/maintenance.log 2>&1
+17 * * * * avinson cd /home/avinson/git/avinson/nish && .venv/bin/python tools/maintenance.py health >> /home/avinson/nishbot/logs/maintenance.log 2>&1
+7 * * * * root /usr/sbin/logrotate --state /var/lib/logrotate/nishbot.status /etc/logrotate-nishbot.conf

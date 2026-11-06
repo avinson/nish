@@ -1,0 +1,30 @@
+[project]
+name = "nishbot"
+version = "0.2.0"
+description = "Nishbot runtime and maintenance tools"
+requires-python = ">=3.12,<3.13"
+dependencies = ["limnoria==2026.10.4", "cobe==3.0.1"]
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.14", "markovify==0.9.4"]
+
+[tool.uv]
+package = false
+# cobe's algorithm and database format stay unchanged. Its 2020 dependency
+# pins are replaced by releases tested with this runtime on Python 3.12.
+override-dependencies = ["PyStemmer==3.1.0", "irc==20.5.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = ["plugins/Titler", "plugins/I18nPlaceholder"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+"plugins/Infobot/*.py" = ["F403", "F405", "E741", "F401", "F841", "E722"]
+"plugins/Cobe/config.py" = ["F401"]
