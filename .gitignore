@@ -12,6 +12,7 @@ conf/
 data/
 logs/
 nishbot.conf
+apikey.txt
 ._*
 build.sh
 run.sh
