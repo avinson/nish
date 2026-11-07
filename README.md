@@ -49,6 +49,46 @@ input. Every Cobe output path removes historical marker prefixes and current
 nicknames. Existing brain history stays intact. `probability=100` means a 1% automatic reply chance. Automatic replies have a ten-second cooldown. Addressed replies can
 bypass it. Replies are delayed by two to five seconds when configured.
 
+## Previews, quotes, and messages
+
+SpiffyTitles is vendored at a reviewed upstream revision with a Nishbot adapter;
+see `plugins/SpiffyTitles/PROVENANCE.md` for the pin and local changes. Preview
+defaults pilot in `#nish`. They show one compact title per message, suppress
+duplicate URLs for ten minutes, and apply a five-second per-user cooldown.
+`!t URL` repeats a cached preview. Other channels stay quiet until added to
+`supybot.plugins.SpiffyTitles.channelWhitelist` (a comma-separated channel list).
+
+YouTube titles and uploaders work without a key through oEmbed. To add duration,
+views, and upload date, enable the YouTube Data API in your Google project and
+save its API key privately on drebin in
+`/home/avinson/nishbot/conf/youtube-api-key` (mode 600). Optional IMDb metadata
+uses an OMDb key saved as `conf/omdb-api-key`; deployment enables that handler
+when it imports this file. Never paste keys into channel messages or Git.
+`task bot:deploy` imports these files without printing their contents. Existing
+keys in private runtime config survive regeneration. API failures fall back to
+oEmbed where possible; unavailable links produce no automatic error message.
+Other specialized site handlers are inactive pending separate review.
+
+Bundled QuoteGrabs and Later provide:
+
+```text
+!grab alice                         capture Alice's most recent channel message
+!quote alice                        recall Alice's latest captured quote
+!quotegrabs random                  recall a random captured quote
+!later tell alice the movie is on   deliver when Alice next speaks
+!later undo alice                   cancel your last pending message to Alice
+```
+
+Later messages are public and identify recipients by nickname. Quotes are
+stored per channel. Both plugins' persistent state is included in recovery
+snapshots. Existing Cobe, Infobot, Karma, and Seen behavior stays intact.
+
+Deployment tests and snapshots before stopping the bot to regenerate its
+private config. The prior config is saved as `backup/nishbot.pre-deploy.conf`.
+On failure the deployment script restores that config and restarts the current
+source; a code rollback still requires restoring the prior source revision.
+The `bot:rollback` task is specifically the legacy Python 2 recovery procedure.
+
 ## Recovery and retention
 
 Daily cron jobs run cleanup at 02:17 and a consistent SQLite snapshot at

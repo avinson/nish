@@ -18,6 +18,7 @@ import time
 BACKUP = re.compile(
     r"^(Infobot\.pickle\.db|users\.conf|channels\.conf|ignores\.conf|nishbot\.conf)\.backup\.(\d+)$"
 )
+QUASSEL = Path("/home/avinson/services/quassel/data/quassel-storage.sqlite")
 
 
 def hash_file(stream, algorithm="sha256"):
@@ -69,7 +70,8 @@ def snapshot(root, destination):
     destination.mkdir(parents=True, mode=0o700, exist_ok=True)
     databases = [(p, p.relative_to(root)) for p in (root / "data").glob("*/cobe.brain")]
     databases += [(p, p.relative_to(root)) for p in (root / "data").glob("*/*.sqlite*.db")]
-    quassel = Path("/home/avinson/services/quassel/data/quassel-storage.sqlite")
+    databases += [(p, p.relative_to(root)) for p in (root / "data").glob("QuoteGrabs*.db")]
+    quassel = QUASSEL
     if quassel.exists():
         databases.append((quassel, Path("quassel/quassel-storage.sqlite")))
     biggest = max(p.stat().st_size for p, _ in databases)
@@ -130,6 +132,10 @@ def snapshot(root, destination):
     for name in ("Seen.db", "Seen.any.db"):
         # Seen is atomically replaced by the bot; each copy is a complete old or new file.
         shutil.copy2(root / "data" / name, destination / "data" / name)
+    later = root / "data" / "Later.db"
+    if later.exists():
+        # Later atomically replaces its CSV file on each change and shutdown.
+        shutil.copy2(later, destination / "data" / "Later.db")
     for source in (root / "data").glob("*/Infobot.pickle.db"):
         target = destination / source.relative_to(root)
         target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)

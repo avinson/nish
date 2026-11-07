@@ -7,7 +7,7 @@ supybot.networks.Skub.channels: #darwin #nish #xelpers
 supybot.networks.Skub.password:
 supybot.protocols.ssl.verifyCertificates: True
 supybot.drivers.module: Socket
-supybot.plugins: Admin Channel Config Misc Owner User Cobe Infobot Karma Seen ChannelLogger
+supybot.plugins: Admin Channel Config Misc Owner User Cobe Infobot Karma Seen ChannelLogger SpiffyTitles QuoteGrabs Later
 supybot.databases: sqlite3 flat
 supybot.reply.whenAddressedBy.chars: !
 supybot.capabilities: -owner -admin -trusted
@@ -17,3 +17,24 @@ supybot.plugins.Cobe.probabilityWhenAddressed: 10000
 supybot.plugins.Cobe.waitTimeBetweenSpeaking: 10
 supybot.plugins.Cobe.ignoreWaitTimeIfAddressed: True
 supybot.plugins.Cobe.responseDelay: True
+supybot.plugins.SpiffyTitles: True
+supybot.plugins.QuoteGrabs: True
+supybot.plugins.Later: True
+supybot.plugins.SpiffyTitles.channelWhitelist: #nish
+supybot.plugins.SpiffyTitles.timeout: 5
+supybot.plugins.SpiffyTitles.cacheLifetime: 600
+supybot.plugins.SpiffyTitles.cooldownSeconds: 5
+supybot.plugins.SpiffyTitles.snarfMultipleUrls: False
+supybot.plugins.SpiffyTitles.badLinkText:
+supybot.plugins.SpiffyTitles.default.enabled: True
+supybot.plugins.SpiffyTitles.youtube.enabled: True
+supybot.plugins.SpiffyTitles.youtube.template: ▶ {{title}}{% if duration %} | {{duration}}{% endif %}{% if view_count %} | {{view_count}} views{% endif %}{% if channel_title %} | {{channel_title}}{% endif %}{% if published %} | {{published}}{% endif %}
+supybot.plugins.SpiffyTitles.imdb.enabled: False
+supybot.plugins.SpiffyTitles.wikipedia.enabled: False
+supybot.plugins.SpiffyTitles.reddit.enabled: False
+supybot.plugins.SpiffyTitles.imgur.enabled: False
+supybot.plugins.SpiffyTitles.dailymotion.enabled: False
+supybot.plugins.SpiffyTitles.twitch.enabled: False
+supybot.plugins.SpiffyTitles.vimeo.enabled: False
+supybot.plugins.SpiffyTitles.coub.enabled: False
+supybot.plugins.SpiffyTitles.twitter.enabled: False

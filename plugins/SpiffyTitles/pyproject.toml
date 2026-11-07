@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8.0.4"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "limnoria-spiffytitles"
+dynamic = ["version"]
+authors = [
+    { name = "butterscotchstallion" },
+    { name = "oddluck <oddluck@riseup.net>" },
+    { name = "appas <matias.wilkman@gmail.com>" },
+]
+readme = "README.md"
+dependencies = [
+    "limnoria",
+    "requests",
+    "beautifulsoup4",
+    "jinja2",
+]
+classifiers = [
+    'Environment :: Plugins',
+    'Programming Language :: Python :: 3',
+    'Topic :: Communications :: Chat',
+]
+
+[project.optional-dependencies]
+wikipedia = [
+    "wikipedia-api",
+]
+
+[tool.setuptools_scm]
+write_to = "_version.py"
+version_scheme = "calver-by-date"
+local_scheme = "node-and-date"
+root = ".."
+
+[project.entry-points.'limnoria.plugins']
+SpiffyTitles = "limnoria_spiffytitles"
+
+[tool.setuptools.package-dir]
+"limnoria_spiffytitles" = "."
+
+[tool.setuptools.package-data]
+"limnoria_spiffytitles" = ["locales/*.po"]

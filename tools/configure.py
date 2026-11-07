@@ -4,10 +4,33 @@ import argparse
 from pathlib import Path
 import re
 
-ENABLED = "Admin Channel Config Misc Owner User Cobe Infobot Karma Seen ChannelLogger".split()
+ENABLED = (
+    "Admin Channel Config Misc Owner User Cobe Infobot Karma Seen ChannelLogger "
+    "SpiffyTitles QuoteGrabs Later"
+).split()
+
+PLUGIN_DEFAULTS = {
+    "timeout": "5",
+    "cacheLifetime": "600",
+    "channelWhitelist": "#nish",
+    "snarfMultipleUrls": "False",
+    "cooldownSeconds": "5",
+    "badLinkText": "",
+    "default.enabled": "True",
+    "youtube.enabled": "True",
+    "youtube.template": (
+        "▶ {{title}}{% if duration %} | {{duration}}{% endif %}"
+        "{% if view_count %} | {{view_count}} views{% endif %}"
+        "{% if channel_title %} | {{channel_title}}{% endif %}"
+        "{% if published %} | {{published}}{% endif %}"
+    ),
+    **{f"{handler}.enabled": "False" for handler in (
+        "imdb", "wikipedia", "reddit", "imgur", "dailymotion", "twitch", "vimeo", "coub", "twitter"
+    )},
+}
 
 
-def configure(source, output, root, repository):
+def configure(source, output, root, repository, youtube_key_file=None, omdb_key_file=None):
     """Keep existing active settings and replace obsolete runtime selections."""
     values = {}
     key = None
@@ -49,6 +72,23 @@ def configure(source, output, root, repository):
     }
     for name in ENABLED:
         replacements["supybot.plugins." + name] = "True"
+    # Preserve operator overrides and private API keys on subsequent regeneration.
+    for key, value in PLUGIN_DEFAULTS.items():
+        key = "supybot.plugins.SpiffyTitles." + key
+        values.setdefault(key, key + ": " + value)
+    for key_file, name in (
+        (youtube_key_file, "youtube.developerKey"), (omdb_key_file, "imdb.omdbAPI"),
+    ):
+        if key_file is None:
+            continue
+        secret = key_file.read_text().strip()
+        if not secret or any(c.isspace() or ord(c) < 32 for c in secret):
+            raise ValueError("API key files must contain a single nonempty token")
+        key = "supybot.plugins.SpiffyTitles." + name
+        values[key] = key + ": " + secret
+        if name == "imdb.omdbAPI":
+            key = "supybot.plugins.SpiffyTitles.imdb.enabled"
+            values[key] = key + ": True"
     for name in ("conf", "data", "log", "backup"):
         replacements["supybot.directories." + name] = str(
             root / ("logs" if name == "log" else name)
@@ -67,8 +107,13 @@ def main():
     parser.add_argument("output", type=Path)
     parser.add_argument("--root", type=Path, default=Path("/home/avinson/nishbot"))
     parser.add_argument("--repository", type=Path, default=Path("/home/avinson/git/avinson/nish"))
+    parser.add_argument("--youtube-key-file", type=Path)
+    parser.add_argument("--omdb-key-file", type=Path)
     args = parser.parse_args()
-    configure(args.source, args.output, args.root, args.repository)
+    configure(
+        args.source, args.output, args.root, args.repository,
+        args.youtube_key_file, args.omdb_key_file,
+    )
 
 
 if __name__ == "__main__":
