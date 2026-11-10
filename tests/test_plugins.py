@@ -122,6 +122,8 @@ class CobePluginTest(supytest.ChannelPluginTestCase):
             plugin.doPrivmsg(self.irc, second)
             plugin._executor.submit(lambda: None).result(timeout=5)
             plugin._log_auto_stats()
-            args = logged.call_args.args
-            self.assertEqual(args[1:], (2, 0.04, 2, 0, 1, 0, 1, 0))
-            self.assertNotIn("private conversation", str(args))
+            logged.assert_called_once_with(
+                "Cobe automatic replies: eligible=2 expected_rolls=0.0400 selected=2 "
+                "submit_rejected=0 cooldown=1 empty_or_unavailable=0 queued=1 failed=0"
+            )
+            self.assertNotIn("private conversation", str(logged.call_args))

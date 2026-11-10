@@ -46,12 +46,13 @@ class Cobe(callbacks.Plugin):
             stats, self._auto_stats = self._auto_stats, {}
         if stats:
             self.log.info(
-                "Cobe automatic replies: eligible=%d expected_rolls=%.4f selected=%d "
-                "submit_rejected=%d cooldown=%d empty_or_unavailable=%d queued=%d failed=%d",
-                stats.get("eligible", 0), stats.get("probability_sum", 0) / 10000,
-                stats.get("selected", 0), stats.get("submit_rejected", 0),
-                stats.get("cooldown", 0), stats.get("empty_or_unavailable", 0),
-                stats.get("queued", 0), stats.get("failed", 0),
+                f"Cobe automatic replies: eligible={stats.get('eligible', 0)} "
+                f"expected_rolls={stats.get('probability_sum', 0) / 10000:.4f} "
+                f"selected={stats.get('selected', 0)} "
+                f"submit_rejected={stats.get('submit_rejected', 0)} "
+                f"cooldown={stats.get('cooldown', 0)} "
+                f"empty_or_unavailable={stats.get('empty_or_unavailable', 0)} "
+                f"queued={stats.get('queued', 0)} failed={stats.get('failed', 0)}"
             )
 
     def _path(self, channel):
