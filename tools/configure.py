@@ -6,8 +6,9 @@ import re
 
 ENABLED = (
     "Admin Channel Config Misc Owner User Cobe Infobot Karma Seen ChannelLogger "
-    "SpiffyTitles QuoteGrabs Later"
+    "QuoteGrabs Later"
 ).split()
+DISABLED = ("Titler", "SpiffyTitles")
 
 PLUGIN_DEFAULTS = {
     "timeout": "5",
@@ -43,7 +44,7 @@ def configure(source, output, root, repository, youtube_key_file=None, omdb_key_
             values[key] += "\n" + line
         else:
             key = None
-    enabled = {name.lower() for name in ENABLED}
+    enabled = {name.lower() for name in (*ENABLED, *DISABLED)}
     for key in list(values):
         parts = key.split(".")
         if key.startswith("supybot.plugins.") and len(parts) >= 3:
@@ -69,9 +70,12 @@ def configure(source, output, root, repository, youtube_key_file=None, omdb_key_
         "supybot.plugins.ChannelLogger.directories.timestamp": "False",
         "supybot.plugins.ChannelLogger.filenameTimestamp": "%Y-%m-%d",
         "supybot.plugins.ChannelLogger.flushImmediately": "True",
+        "supybot.plugins.Cobe.probability": "200",
     }
     for name in ENABLED:
         replacements["supybot.plugins." + name] = "True"
+    for name in DISABLED:
+        replacements["supybot.plugins." + name] = "False"
     # Preserve operator overrides and private API keys on subsequent regeneration.
     for key, value in PLUGIN_DEFAULTS.items():
         key = "supybot.plugins.SpiffyTitles." + key

@@ -32,6 +32,27 @@ class Cobe(callbacks.Plugin):
         self._lock = threading.Lock()
         self._pending = 0
         self._active = True
+        self._auto_stats = {}
+        self._stats_event = "nish-cobe-stats-" + uuid.uuid4().hex
+        schedule.addPeriodicEvent(self._log_auto_stats, 3600, name=self._stats_event, now=False)
+
+    def _count_auto(self, **counts):
+        with self._lock:
+            for key, value in counts.items():
+                self._auto_stats[key] = self._auto_stats.get(key, 0) + value
+
+    def _log_auto_stats(self):
+        with self._lock:
+            stats, self._auto_stats = self._auto_stats, {}
+        if stats:
+            self.log.info(
+                "Cobe automatic replies: eligible=%d expected_rolls=%.4f selected=%d "
+                "submit_rejected=%d cooldown=%d empty_or_unavailable=%d queued=%d failed=%d",
+                stats.get("eligible", 0), stats.get("probability_sum", 0) / 10000,
+                stats.get("selected", 0), stats.get("submit_rejected", 0),
+                stats.get("cooldown", 0), stats.get("empty_or_unavailable", 0),
+                stats.get("queued", 0), stats.get("failed", 0),
+            )
 
     def _path(self, channel):
         if not channel.startswith(("#", "&")) or "/" in channel or ".." in channel:
@@ -55,7 +76,8 @@ class Cobe(callbacks.Plugin):
             return None
         return tuple(irc.state.channels[channel].users)
 
-    def _submit(self, irc, msg, channel, text, learn=False, reply=False, addressed=False):
+    def _submit(self, irc, msg, channel, text, learn=False, reply=False, addressed=False,
+                automatic=False):
         users = self._users(irc, channel)
         if users is None or not self._active:
             return
@@ -74,20 +96,24 @@ class Cobe(callbacks.Plugin):
             self._pending += 1
         if reply:
             msg.tag("repliedTo")
-        future = self._executor.submit(self._work, irc, msg, channel, text, learn, reply, addressed)
-        future.add_done_callback(self._finished)
+        future = self._executor.submit(
+            self._work, irc, msg, channel, text, learn, reply, addressed, automatic
+        )
+        future.add_done_callback(lambda done: self._finished(done, automatic))
         return True
 
-    def _finished(self, future):
+    def _finished(self, future, automatic=False):
         with self._lock:
             self._pending -= 1
         if not future.cancelled():
             try:
                 future.result()
             except Exception:
+                if automatic:
+                    self._count_auto(failed=1)
                 self.log.exception("Cobe event failed")
 
-    def _work(self, irc, msg, channel, text, learn, reply, addressed):
+    def _work(self, irc, msg, channel, text, learn, reply, addressed, automatic=False):
         if not self._active:
             return
         brain = self._brain(channel)
@@ -101,13 +127,19 @@ class Cobe(callbacks.Plugin):
         if not bypass and now - self._last.get(key, float("-inf")) < self.registryValue(
             "waitTimeBetweenSpeaking", channel
         ):
+            if automatic:
+                self._count_auto(cooldown=1)
             return
         response = brain.reply(text, loop_ms=500, max_len=300)
         users = self._users(irc, channel)
         if users is None:
+            if automatic:
+                self._count_auto(empty_or_unavailable=1)
             return
         response = clean_output(response, users)
         if not response:
+            if automatic:
+                self._count_auto(empty_or_unavailable=1)
             return
         self._last[key] = time.monotonic()
 
@@ -116,6 +148,12 @@ class Cobe(callbacks.Plugin):
                 current = clean_output(response, self._users(irc, channel))
                 if current:
                     irc.queueMsg(ircmsgs.privmsg(channel, current))
+                    if automatic:
+                        self._count_auto(queued=1)
+                elif automatic:
+                    self._count_auto(empty_or_unavailable=1)
+            elif automatic:
+                self._count_auto(empty_or_unavailable=1)
             with self._lock:
                 self._events.discard(event)
 
@@ -145,15 +183,22 @@ class Cobe(callbacks.Plugin):
         mentioned = irc_fold(irc.nick) in {irc_fold(m[0]) for m in NICK_TOKEN.finditer(text)}
         setting = "probabilityWhenAddressed" if mentioned else "probability"
         probability = min(10000, self.registryValue(setting, channel))
-        self._submit(
+        selected = random.randrange(10000) < probability
+        automatic = not mentioned and selected
+        if not mentioned:
+            self._count_auto(eligible=1, probability_sum=probability, selected=int(selected))
+        submitted = self._submit(
             irc,
             msg,
             channel,
             text,
             learn=True,
-            reply=random.randrange(10000) < probability,
+            reply=selected,
             addressed=mentioned,
+            automatic=automatic,
         )
+        if automatic and not submitted:
+            self._count_auto(submit_rejected=1)
 
     def invalidCommand(self, irc, msg, tokens):
         """Respond after Infobot and recognized commands have had priority."""
@@ -221,6 +266,11 @@ class Cobe(callbacks.Plugin):
 
         self._executor.submit(close).result(timeout=30)
         self._executor.shutdown(wait=True)
+        try:
+            schedule.removeEvent(self._stats_event)
+        except KeyError:
+            pass
+        self._log_auto_stats()
         super().die()
 
 

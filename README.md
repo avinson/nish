@@ -46,8 +46,18 @@ Credentials stay in the private runtime configuration, outside Git.
 Cobe learns accepted incoming channel messages, not its own output. It
 removes whole nickname tokens and rejects either old reserved marker on
 input. Every Cobe output path removes historical marker prefixes and current
-nicknames. Existing brain history stays intact. `probability=100` means a 1% automatic reply chance. Automatic replies have a ten-second cooldown. Addressed replies can
-bypass it. Replies are delayed by two to five seconds when configured.
+nicknames. Existing brain history stays intact. `probability=200` means a 2%
+automatic reply selection chance. Automatic replies have a ten-second cooldown.
+Addressed replies can bypass it. Replies are delayed by two to five seconds when
+configured.
+
+Cobe logs aggregate automatic reply counts hourly and on shutdown without message
+contents. `eligible` counts ordinary messages reaching the random roll;
+`expected_rolls` is the sum of their configured probabilities, and `selected`
+is the number chosen. The remaining counts show submission rejection, cooldown,
+empty or unavailable output, messages queued for IRC, and worker failures. A
+delayed reply may be counted in a later interval than its selection; queued
+messages are not confirmation of delivery. Use `task bot:logs` to inspect them.
 
 ## Previews, quotes, and messages
 

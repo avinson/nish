@@ -13,6 +13,8 @@ def test_private_settings_and_allowlist(tmp_path):
         "supybot.plugins.Titler: False\n"
         "supybot.plugins.I18nPlaceholder: True\n"
         "supybot.plugins.Infobot.personality: True\n"
+        "supybot.plugins.Cobe.probability: 100\n"
+        "supybot.plugins.Cobe.probability.#one: 500\n"
         "supybot.capabilities: -owner -admin -trusted\n"
     )
     target = tmp_path / "new.conf"
@@ -22,11 +24,13 @@ def test_private_settings_and_allowlist(tmp_path):
     assert "key.#two: synthetic-key" in text
     assert "channels: #one #two" in text
     assert "Freenode" not in text
-    assert "Titler" not in text
+    assert "supybot.plugins.Titler: False\n" in text
     assert "I18nPlaceholder" not in text
     assert "capabilities: -owner -admin -trusted" in text
     assert "supybot.protocols.ssl.verifyCertificates: True" in text
     assert "supybot.plugins.ChannelLogger.rotateLogs: True" in text
+    assert "supybot.plugins.Cobe.probability: 200\n" in text
+    assert "supybot.plugins.Cobe.probability.#one: 500\n" in text
     assert target.stat().st_mode & 0o777 == 0o600
 
 
@@ -45,9 +49,11 @@ def test_new_plugins_and_overrides_survive_regeneration(tmp_path):
     text = target.read_text()
     for line in source.read_text().splitlines():
         assert line in text
-    for plugin in ("SpiffyTitles", "QuoteGrabs", "Later"):
+    for plugin in ("QuoteGrabs", "Later"):
         assert plugin in ENABLED
         assert f"supybot.plugins.{plugin}: True\n" in text
+    assert "SpiffyTitles" not in ENABLED
+    assert "supybot.plugins.SpiffyTitles: False\n" in text
     configure(target, source, tmp_path / "runtime", tmp_path / "repo")
     assert source.read_text() == text
 

@@ -7,17 +7,18 @@ supybot.networks.Skub.channels: #darwin #nish #xelpers
 supybot.networks.Skub.password:
 supybot.protocols.ssl.verifyCertificates: True
 supybot.drivers.module: Socket
-supybot.plugins: Admin Channel Config Misc Owner User Cobe Infobot Karma Seen ChannelLogger SpiffyTitles QuoteGrabs Later
+supybot.plugins: Admin Channel Config Misc Owner User Cobe Infobot Karma Seen ChannelLogger QuoteGrabs Later
 supybot.databases: sqlite3 flat
 supybot.reply.whenAddressedBy.chars: !
 supybot.capabilities: -owner -admin -trusted
 supybot.capabilities.default: True
-supybot.plugins.Cobe.probability: 100
+supybot.plugins.Cobe.probability: 200
 supybot.plugins.Cobe.probabilityWhenAddressed: 10000
 supybot.plugins.Cobe.waitTimeBetweenSpeaking: 10
 supybot.plugins.Cobe.ignoreWaitTimeIfAddressed: True
 supybot.plugins.Cobe.responseDelay: True
-supybot.plugins.SpiffyTitles: True
+supybot.plugins.Titler: False
+supybot.plugins.SpiffyTitles: False
 supybot.plugins.QuoteGrabs: True
 supybot.plugins.Later: True
 supybot.plugins.SpiffyTitles.channelWhitelist: #nish

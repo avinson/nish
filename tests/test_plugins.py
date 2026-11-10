@@ -93,10 +93,10 @@ class CobePluginTest(supytest.ChannelPluginTestCase):
             plugin._executor.submit(lambda: None).result(timeout=5)
             self.assertEqual(brain.learn.call_count, 1)
 
-    def test_one_percent_random_reply_boundaries(self):
+    def test_two_percent_random_reply_boundaries(self):
         plugin = self.irc.getCallback("Cobe")
-        conf.supybot.plugins.Cobe.probability.setValue(100)
-        for roll, expected in ((0, True), (99, True), (100, False), (9999, False)):
+        conf.supybot.plugins.Cobe.probability.setValue(200)
+        for roll, expected in ((0, True), (199, True), (200, False), (9999, False)):
             msg = ircmsgs.privmsg(self.channel, "an ordinary sentence", prefix="alice!a@host")
             with (
                 mock.patch("Cobe.plugin.random.randrange", return_value=roll),
@@ -104,3 +104,24 @@ class CobePluginTest(supytest.ChannelPluginTestCase):
             ):
                 plugin.doPrivmsg(self.irc, msg)
                 self.assertEqual(submit.call_args.kwargs["reply"], expected)
+
+    def test_automatic_reply_metrics_track_outcomes_without_text(self):
+        plugin = self.irc.getCallback("Cobe")
+        conf.supybot.plugins.Cobe.probability.setValue(200)
+        brain = mock.Mock()
+        brain.reply.return_value = "A normal generated sentence"
+        msg = ircmsgs.privmsg(self.channel, "private conversation", prefix="alice!a@host")
+        with (
+            mock.patch("Cobe.plugin.random.randrange", return_value=0),
+            mock.patch.object(plugin, "_brain", return_value=brain),
+            mock.patch.object(plugin.log, "info") as logged,
+        ):
+            plugin.doPrivmsg(self.irc, msg)
+            plugin._executor.submit(lambda: None).result(timeout=5)
+            second = ircmsgs.privmsg(self.channel, "another private message", prefix="alice!a@host")
+            plugin.doPrivmsg(self.irc, second)
+            plugin._executor.submit(lambda: None).result(timeout=5)
+            plugin._log_auto_stats()
+            args = logged.call_args.args
+            self.assertEqual(args[1:], (2, 0.04, 2, 0, 1, 0, 1, 0))
+            self.assertNotIn("private conversation", str(args))
